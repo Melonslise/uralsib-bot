@@ -1,5 +1,6 @@
 require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api");
+const CommandTypes = require("./command_types");
 const Commands = require("./content/commands.json");
 
 
@@ -12,7 +13,7 @@ console.log("Bot started");
 
 function execCmdByIdx(fromId, cmdIdx)
 {
-	if(cmdIdx < 0)
+	if(cmdIdx < 0 || cmdIdx >= Commands.length)
 	{
 		bot.sendMessage(fromId, "Неизвестная команда");
 
@@ -21,13 +22,10 @@ function execCmdByIdx(fromId, cmdIdx)
 
 	const cmdInfo = Commands[cmdIdx];
 
-	if(cmdInfo.type === "text")
-	{
-		bot.sendMessage(fromId, cmdInfo.arg, { reply_markup: { inline_keyboard: cmdInfo.keyboard.map(e => e.map(t => ({ text: t, callback_data: Commands.findIndex(c => c.cmd === t.toLowerCase()) }))) } });
-	}
+	CommandTypes.exec(bot, fromId, cmdInfo);
 }
 
-function execCmd(fromId, text)
+function execCmdByName(fromId, text)
 {
 	if (!text)
 	{
@@ -45,7 +43,7 @@ function execCmd(fromId, text)
 
 bot.on("message", msg =>
 {
-	execCmd(msg.from.id, msg.text);
+	execCmdByName(msg.from.id, msg.text);
 });
 
 bot.on("callback_query", query =>
