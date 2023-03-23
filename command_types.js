@@ -1,5 +1,8 @@
-const registry = new Map();
+const Form = require("./form");
 
+
+
+const registry = new Map();
 
 registry.exec = function(bot, chatId, cmdInfo)
 {
@@ -14,7 +17,8 @@ registry.set("text", (bot, chadId, cmdInfo) =>
 
 registry.set("form", (bot, chatId, cmdInfo) =>
 {
-
+	const form = bot.getSessionLazy(chatId).form = new Form(bot, chatId, cmdInfo.arg);
+	form.prompt(bot, chatId);
 });
 
 
