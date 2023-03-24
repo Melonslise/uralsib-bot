@@ -37,21 +37,25 @@ module.exports = class form
 			return;
 		}
 	
-		const condition = PromptTypes.get(promptInfo.type);
+		const validator = PromptTypes.get(promptInfo.type);
 	
-		if(condition(input))
+		if(!validator(this.bot, this.chatId, input))
 		{
-			this.prompts.shift();
-			this.answers.push(input);
+			this.prompt();
 
-			if(this.isActive())
-			{
-				this.prompt();
-			}
-			else
-			{
-				this._finish();
-			}
+			return;
+		}
+
+		this.prompts.shift();
+		this.answers.push(input);
+
+		if(this.isActive())
+		{
+			this.prompt();
+		}
+		else
+		{
+			this._finish();
 		}
 	}
 
