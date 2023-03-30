@@ -17,8 +17,8 @@ registry.set("text", (bot, chadId, cmdInfo) =>
 
 registry.set("form", (bot, chatId, cmdInfo) =>
 {
-	const form = bot.getSessionLazy(chatId).form = new Form(bot, chatId, cmdInfo.arg);
-	form.prompt(bot, chatId);
+	const form = bot.getSessionLazy(chatId).form = new Form(bot, cmdInfo.arg);
+	form.prompt(chatId);
 });
 
 

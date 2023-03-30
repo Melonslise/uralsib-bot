@@ -2,15 +2,16 @@ const PromptTypes = require("./prompt_types");
 
 
 
-module.exports = class form
+module.exports = class Form
 {
-	constructor(bot, chatId, prompts)
+	constructor(bot, formInfo)
 	{
 		this.bot = bot;
-		this.chatId = chatId;
 
-		this.prompts = prompts.concat(); // copy
+		this.prompts = formInfo.prompts.concat(); // copy
 		this.answers = [];
+
+		this.response = formInfo.response;
 	}
 
 	isActive()
@@ -18,17 +19,17 @@ module.exports = class form
 		return this.prompts.length > 0;
 	}
 
-	prompt()
+	prompt(chatId)
 	{
 		const promptInfo = this.prompts[0];
 
 		if(promptInfo)
 		{
-			this.bot.sendMessage(this.chatId, promptInfo.prompt);
+			this.bot.sendMessage(chatId, promptInfo.prompt);
 		}
 	}
 
-	answer(input)
+	async answer(msg)
 	{
 		const promptInfo = this.prompts[0];
 	
@@ -39,31 +40,34 @@ module.exports = class form
 	
 		const validator = PromptTypes.get(promptInfo.type);
 	
-		if(!validator(this.bot, this.chatId, input))
+		const parsedInput = validator(this.bot, msg);
+
+		if(!parsedInput)
 		{
-			this.prompt();
+			this.prompt(msg.chat.id);
 
 			return;
 		}
 
 		this.prompts.shift();
-		this.answers.push(input);
+		this.answers.push(parsedInput);
+
+		await this.bot.sendMessage(msg.chat.id, promptInfo.confirm);
 
 		if(this.isActive())
 		{
-			this.prompt();
+			this.prompt(msg.chat.id);
 		}
 		else
 		{
-			this._finish();
+			this._finish(msg.chat.id);
 		}
 	}
 
-	_finish()
+	_finish(chatId)
 	{
 		console.log(this.answers);
 
-		// TODO: custom msg
-		this.bot.sendMessage(this.chatId, "Заявка отправлена!")
+		this.bot.sendMessage(chatId, this.response)
 	}
 }

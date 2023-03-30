@@ -73,7 +73,7 @@ bot.on("message", msg =>
 
 	if(form && form.isActive())
 	{
-		form.answer(msg.text);
+		form.answer(msg);
 	}
 	else
 	{
